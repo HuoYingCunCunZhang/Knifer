@@ -74,6 +74,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gimela.Toolkit.CommandLines
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileTailSearch", "FileTailSearch\FileTailSearch.csproj", "{B424D124-2AB2-41D9-8642-F9BAA11B6F64}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLogCollecter", "TestLogCollecter\TestLogCollecter.csproj", "{C629D854-2D01-48E8-95D8-8D48C53AA3D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -410,6 +412,18 @@ Global
 		{B424D124-2AB2-41D9-8642-F9BAA11B6F64}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B424D124-2AB2-41D9-8642-F9BAA11B6F64}.Release|x86.ActiveCfg = Release|Any CPU
 		{B424D124-2AB2-41D9-8642-F9BAA11B6F64}.Release|x86.Build.0 = Release|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Debug|x86.Build.0 = Debug|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Release|x86.ActiveCfg = Release|Any CPU
+		{C629D854-2D01-48E8-95D8-8D48C53AA3D0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
