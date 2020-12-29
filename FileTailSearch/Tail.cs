@@ -22,7 +22,7 @@ namespace FileTailSearch
         /// <param name="path">文件路径</param>
         /// <param name="searchLineNum">要读取的最后行数</param>
         /// <returns></returns>
-        private string ReadFirstTime(string path,int searchLineNum)
+        public string ReadFirstTime(string path,int searchLineNum)
         {
             string data = string.Empty;
             byte[] readBytes = new byte[maxReadBytes];
@@ -104,10 +104,10 @@ namespace FileTailSearch
 
 
         /// <summary>
-        /// 
+        /// 将信息打印到控制台上
         /// </summary>
         /// <param name="data"></param>
-        public void OutputConsole(string data)
+        private void OutputConsole(string data)
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write(data);

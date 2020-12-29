@@ -6,4 +6,8 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FileTailSearch\FileTailSearch.csproj" />
+  </ItemGroup>
+
 </Project>
