@@ -31,13 +31,16 @@ using Gimela.Toolkit.CommandLines.Foundation;
 namespace Gimela.Toolkit.CommandLines.Tail
 {
     class Program
-  {
-    static void Main(string[] args)
     {
-      using (CommandLine command = new TailCommandLine(args))
-      {
-        CommandLineBootstrap.Start(command);
-      }
+        static void Main(string[] args)
+        {
+            //args = new string[] { "-f", @"D:\WorkSpace\wj_isfp_rm\WJ.CLIENT.AGENT\bin\Debug\netcoreapp3.1\logs\INFO\2020-12-29.log" };
+            args = new string[] { @"D:\数据\Logs\log.2020-12-21" };
+            using (CommandLine command = new TailCommandLine(args))
+            {
+                CommandLineBootstrap.Start(command);
+            }
+        }
+
     }
-  }
 }

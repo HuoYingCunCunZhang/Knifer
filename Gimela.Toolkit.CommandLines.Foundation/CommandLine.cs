@@ -101,11 +101,7 @@ namespace Gimela.Toolkit.CommandLines.Foundation
         [SuppressMessage("Microsoft.Design", "CA1030:UseEventsWhereAppropriate")]
         protected virtual void RaiseCommandLineDataChanged(object sender, string data)
         {
-            EventHandler<CommandLineDataChangedEventArgs> handler = CommandLineDataChanged;
-            if (handler != null)
-            {
-                handler(sender, new CommandLineDataChangedEventArgs(data));
-            }
+            CommandLineDataChanged?.Invoke(sender, new CommandLineDataChangedEventArgs(data));
         }
 
         public event EventHandler<CommandLineExceptionEventArgs> CommandLineException;
