@@ -43,8 +43,17 @@ namespace TestLogCollecter
                 string lineNum = boxLineNum.Text;
                 System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
                 watch.Start();
-                Tail tail = new Tail();
-                var data = tail.ReadFirstTime(path, int.Parse(lineNum));
+                var data = string.Empty;
+                if (string.IsNullOrEmpty(boxRegect.Text))
+                {
+                    Tail tail = new Tail();
+                    data = tail.GetLogLines(path, int.Parse(lineNum));
+                }
+                else
+                {
+                    Tail tail = new Tail(boxRegect.Text);
+                    data = tail.GetLogCollectValue(path, int.Parse(lineNum));
+                }
                 watch.Stop();
                 var time = watch.Elapsed.TotalMilliseconds;
                 timeDes.Text = $"获取日志共耗时：{time}毫秒！";
@@ -58,7 +67,32 @@ namespace TestLogCollecter
 
                 MessageBox.Show(ex.Message);
             }
-            
+
+        }
+
+        /// <summary>
+        /// 日志分析
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string pattern = patternBox.Text;
+                string log = logBox.Text;
+                var interval = Convert.ToInt32(intervalBox.Text);
+                Tail tail = new Tail();
+                var timeValue = tail.GetValueByRegular(log, pattern);
+
+                richTextBox2.Text = timeValue;
+
+            }
+            catch (Exception ex)
+            {
+
+                richTextBox2.Text = ex.Message;
+            }
         }
     }
 }
