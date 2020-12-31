@@ -51,8 +51,8 @@ namespace TestLogCollecter
                 }
                 else
                 {
-                    Tail tail = new Tail(boxRegect.Text);
-                    data = tail.GetLogCollectValue(path, int.Parse(lineNum));
+                    Tail tail = new Tail(boxRegect.Text,10);
+                    data = tail.GetLogCollectValue(path);
                 }
                 watch.Stop();
                 var time = watch.Elapsed.TotalMilliseconds;

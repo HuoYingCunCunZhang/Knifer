@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -19,14 +20,24 @@ namespace FileTailSearch
         private string _valuePattern;
         private bool isFit = false;
         private string collectTime;
+        private int _collectInterval;
+
+
 
         public Tail()
         {
 
         }
-        public Tail(string valuePattern)
+
+        /// <summary>
+        /// 初始化采集周期和匹配内容
+        /// </summary>
+        /// <param name="valuePattern">日志匹配项</param>
+        /// <param name="interval">采集周期</param>
+        public Tail(string valuePattern,int interval)
         {
             _valuePattern = valuePattern;
+            _collectInterval = interval;
         }
 
         #region 对外调用的方法
@@ -37,14 +48,14 @@ namespace FileTailSearch
         /// <param name="path"></param>
         /// <param name="searchLineNum"></param>
         /// <returns></returns>
-        public string GetLogCollectValue(string path ,int searchLineNum)
+        public string GetLogCollectValue(string path )
         {
-            var data = ReadFirstTime(path,searchLineNum);
-            var value = SearchPatternContent(data);
-            if (!string.IsNullOrEmpty(value))
+            var data = FitLogContentFromLast(path);
+            //var value = SearchPatternContent(data);
+            if (!string.IsNullOrEmpty(data))
             {
                 SetIsFit(true);
-                return value;
+                return data;
             }
             return "没有找到匹配结果";
         }
@@ -99,8 +110,9 @@ namespace FileTailSearch
             {
                 byte[] newLineBuffer = new byte[newLine.Length];
                 byte[] reverseBytes = new byte[maxReadBytes];//存储反转的数据，用于存所设置行数的数据
-
                 int reverseCount = 0;
+                byte[] newLineBytes = new byte[1024];//定义存储一行日志的buffer缓冲区
+                int newLineCount = 0;
                 bool isNewLineEqual = true;
 
                 for (int i = numReadBytes - 1; i >= 0; i--)
@@ -108,6 +120,9 @@ namespace FileTailSearch
                     Buffer.BlockCopy(readBytes, i, reverseBytes, reverseCount, 1);
                     reverseCount++;
                     readBytesCount++;
+
+                    Buffer.BlockCopy(readBytes, i, newLineBytes, newLineCount, 1);
+                    newLineCount++;
 
                     #region 记录回车换行符，并判断是否为新的一行数据
                     if (newLineBuffer.Length == 1)
@@ -130,6 +145,11 @@ namespace FileTailSearch
                     }
                     if (isNewLineEqual)
                     {
+                        //将这行数据反转
+                        var newLineStr = encoding.GetString(newLineBytes.Reverse().ToArray(), 0, newLineCount);
+                        newLineCount = 0;
+                        //查找匹配结果
+                        
                         readLineCount++;
                         if (readLineCount - 1 >= searchLineNum)//主要考虑到最后一行的换行符
                         {
@@ -149,6 +169,90 @@ namespace FileTailSearch
                         transferIndex++;
                     }
                     data = encoding.GetString(transferBuffer, 0, reverseCount);
+                }
+            }
+            return data;
+        }
+
+        /// <summary>
+        /// 读取文件中后几行数据
+        /// </summary>
+        /// <param name="path">文件路径</param>
+        /// <param name="searchLineNum">要读取的最后行数</param>
+        /// <returns></returns>
+        private string FitLogContentFromLast(string path)
+        {
+            string data = string.Empty;
+            //定义要缓存的文件内容
+            byte[] readBytes = new byte[maxReadBytes];
+            int numReadBytes = 0;
+            //初始化要从后向前偏移的位置
+            this.previousSeekPosition = 0;
+            //将文件数据缓存到readBytes中
+            using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                if (fs.Length > 0)
+                {
+                    CheckFileEncoding(fs);
+                }
+                //this.previousSeekPosition = 0;
+                if (fs.Length > maxReadBytes)
+                {
+                    this.previousSeekPosition = fs.Length - maxReadBytes;
+                }
+                this.previousSeekPosition = fs.Seek(this.previousSeekPosition, SeekOrigin.Begin);
+                numReadBytes = fs.Read(readBytes, 0, (int)maxReadBytes);
+            }
+            //从后往前读缓存中的数据，并根据设置的行数返回固定行数的数据，
+            //此时是从后向前读，字节数组中存储的是颠倒的数据。如：你好吗 -->吗好你。
+            if (numReadBytes > 0)
+            {
+                byte[] newLineBuffer = new byte[newLine.Length];
+                byte[] reverseBytes = new byte[maxReadBytes];//存储反转的数据，用于存所设置行数的数据
+                int reverseCount = 0;
+                byte[] newLineBytes = new byte[1024];//定义存储一行日志的buffer缓冲区
+                int newLineCount = 0; //每一行的字节数量
+                bool isNewLineEqual; //是否是新的一行
+                for (int i = numReadBytes - 1; i >= 0; i--)
+                {
+                    Buffer.BlockCopy(readBytes, i, reverseBytes, reverseCount, 1);
+                    reverseCount++;
+                    readBytesCount++;
+
+                    Buffer.BlockCopy(readBytes, i, newLineBytes, newLineCount, 1);
+                    newLineCount++;
+                    #region 记录回车换行符，并判断是否为新的一行数据
+                    if (newLineBuffer.Length == 1)
+                    {
+                        Buffer.BlockCopy(readBytes, i, newLineBuffer, 0, newLineBuffer.Length);
+                    }
+                    else if (newLineBuffer.Length > 1 && numReadBytes - i >= newLineBuffer.Length)
+                    {
+                        Buffer.BlockCopy(readBytes, i, newLineBuffer, 0, newLineBuffer.Length);
+                    }
+
+                    isNewLineEqual = true;
+                    //判断是否是新的一行
+                    for (int b = 0; b < newLine.Length; b++)
+                    {
+                        if (newLineBuffer[b] != newLine[b])
+                        {
+                            isNewLineEqual = false;
+                            break;
+                        }
+                    }
+                    if (isNewLineEqual)
+                    {
+                        //将这行数据反转
+                        var newLineStr = new string(encoding.GetString(newLineBytes, 0, newLineCount).Trim().Reverse<char>().ToArray<char>());
+                        newLineCount = 0;
+                        if (string.IsNullOrEmpty(newLineStr)) continue;
+                        //查找匹配结果
+                        data = FitMetric(_valuePattern, newLineStr, _collectInterval);
+                        if (!string.IsNullOrEmpty(data)) 
+                            return data;
+                    }
+                    #endregion
                 }
             }
             return data;
@@ -217,11 +321,15 @@ namespace FileTailSearch
             var (_, timePattern) = GetTimeFormart("");
             var timeNow = DateTime.Now;
             var timeValue = GetValueByRegular(logContent, timePattern);
+            if (string.IsNullOrEmpty(timeValue))
+            {
+                return string.Empty;
+            }
             var logTime = DateTime.Parse(timeValue);
-            //if ((timeNow - logTime).TotalSeconds > interval)
-            //{
-            //    return string.Empty;
-            //}
+            if ((timeNow - logTime).TotalSeconds > interval)
+            {
+                return string.Empty;
+            }
             //2.开始匹配日志数据如果数据匹配成功，调用数据发送功能，如果匹配不成功则放弃此条日志。
             return GetValueByRegular(logContent, regularContent,false);
         }
